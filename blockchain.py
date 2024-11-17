@@ -80,7 +80,8 @@ while waiting_for_input:
     # Menu for the user to interact with the blockchain
     print('Please choose')
     print('1: Add a new transaction value')
-    print('2: Output the blockchain blocks')
+    print('2: Mine a new block')
+    print('3: Output the blockchain blocks')
     print('h: Manipulate the chain')
     print('q: Quit')
 
@@ -91,15 +92,18 @@ while waiting_for_input:
         add_transaction(transaction)
         print(open_transactions)
     elif user_choice == '2':
+        mine_block()
+    elif user_choice == '3':
         print_blockchain_elements()
     elif user_choice == 'h':
         # Manipulate the blockchain to check its integrity
         if len(blockchain) >= 1:
-            blockchain[0] = [2]
+            blockchain[0] = {'previous_hash': 'asdfasdf', 'transactions': [{'sender': 'chris', 'recipient': 'Max', 'amount': 30.9}]}
     elif user_choice == 'q':
         waiting_for_input = False
     else:
         print('Input was invalid, please pick a value from the list!')
+        verify_chain()
     if not verify_chain():
         print_blockchain_elements()
         print('Invalid blockchain!')
