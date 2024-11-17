@@ -1,5 +1,7 @@
 blockchain = []
-
+# Transactions need to be processed before adding them to the blockchain
+open_transactions = []
+owner = 'Ilias'
 
 def get_last_blockchain_value():
     if len(blockchain) < 1:
@@ -7,20 +9,24 @@ def get_last_blockchain_value():
     return blockchain[-1]
 
 # Adds transaction to the blockchain
-def add_transaction(transaction_amount, last_transaction=[1]):
-    # If no last transaction exists (because the blockchain is new), add a default transaction
-    if last_transaction == None:
-        last_transaction = [1]
-    # Add the new transaction to the end of the blockchain
-    # New transactions consist of the last block in the chain saved in the new block with the new transaction amount
-    blockchain.append([last_transaction, transaction_amount])
+def add_transaction(transaction):
+    # Dictionary because each key-value pair needs to be unique
+    open_transactions.append(
+        {
+            'sender': transaction['sender'],
+            'recipient': transaction['recipient'],
+            'amount': transaction['amount']
+        }
+    )
 
+def mine_block():
+    pass
 
-# Ask the user the transaction amount
-def get_transaction_value():
-    # Since we're working with money, we need a floating point number
-    user_input = float(input('Your transaction amount please: '))
-    return user_input
+# The recipient and amount is important to know when making a transaction
+def get_transaction_value_and_recipient():
+    recipient = input('Enter the name of the recipient: ')
+    amount = float(input('Enter the amount you want to send: '))
+    return {'sender': owner, 'recipient': recipient, 'amount': amount}
 
 
 # User keyboard input
@@ -68,8 +74,9 @@ while waiting_for_input:
     user_choice = get_user_choice()
 
     if user_choice == '1':
-        tx_amount = get_transaction_value()
-        add_transaction(tx_amount, get_last_blockchain_value())
+        transaction = get_transaction_value_and_recipient()
+        add_transaction(transaction)
+        print(open_transactions)
     elif user_choice == '2':
         print_blockchain_elements()
     elif user_choice == 'h':
