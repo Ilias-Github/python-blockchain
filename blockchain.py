@@ -36,7 +36,7 @@ def get_balance(participant):
         if len(tx) > 0:
             amount_received += tx[0]
 
-    return amount_sent - amount_received
+    return amount_received - amount_sent
 
 def get_last_blockchain_value():
     if len(blockchain) < 1:
