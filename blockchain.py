@@ -15,6 +15,28 @@ def hash_block(block):
     # TODO: Apply real hashing
     return '-'.join([str(block[key]) for key in block])
 
+def get_balance(participant):
+    print('part: ' + participant)
+    # Check every block in the blockchain for the where the given participant is the sender and save them to a list
+    tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender'] == participant] for block in blockchain]
+
+    # Calculate the total amount sent by the given participant
+    amount_sent = 0
+    for tx in tx_sender:
+        # Cannot add something if it doesn't exist
+        if len(tx) > 0:
+            amount_sent += tx[0]
+
+    tx_recipient = [[tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant] for block in blockchain]
+
+    # Calculate the total amount sent by the given participant
+    amount_received = 0
+    for tx in tx_recipient:
+        # Cannot add something if it doesn't exist
+        if len(tx) > 0:
+            amount_received += tx[0]
+
+    return amount_sent - amount_received
 
 def get_last_blockchain_value():
     if len(blockchain) < 1:
@@ -123,6 +145,7 @@ while waiting_for_input:
         print_blockchain_elements()
         print('Invalid blockchain!')
         break
+    print(get_balance(owner))
 else:
     print('User left!')
 
