@@ -5,6 +5,10 @@ blockchain = [genesis_block]
 open_transactions = []
 owner = 'Ilias'
 
+# Participants are saved in a set because we don't want any duplicates in our userbase
+# The name will be replaced by a unique identifier
+participants = {'Ilias'}
+
 
 def hash_block(block):
     """'Hash' a block by concatonating the data with hyphens in between"""
@@ -20,14 +24,19 @@ def get_last_blockchain_value():
 
 # Adds transaction to the blockchain
 def add_transaction(transaction):
+    sender = transaction['sender']
+    recipient = transaction['recipient']
     # Dictionary because each key-value pair needs to be unique
     open_transactions.append(
         {
-            'sender': transaction['sender'],
-            'recipient': transaction['recipient'],
+            'sender': sender,
+            'recipient': recipient,
             'amount': transaction['amount']
         }
     )
+    # Because we use a set, duplicates will be ignored automatically
+    participants.add(sender)
+    participants.add(recipient)
 
 
 def mine_block():
