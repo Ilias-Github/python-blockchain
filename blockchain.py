@@ -1,6 +1,6 @@
 # The very first block in the blockchain. Used to init the blockchain. No important information is stored.
-genesis_block = {'previous_hash': '', 'transactions': []}
-blockchain = [genesis_block]
+GENESIS_BLOCK = {'previous_hash': '', 'transactions': []}
+blockchain = [GENESIS_BLOCK]
 # Transactions need to be processed before adding them to the blockchain
 open_transactions = []
 owner = 'Ilias'
