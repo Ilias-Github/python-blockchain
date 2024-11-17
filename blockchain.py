@@ -3,10 +3,16 @@ blockchain = []
 open_transactions = []
 owner = 'Ilias'
 
+
+def hash_block(block):
+    return '-'.join([str(block[key]) for key in block])
+
+
 def get_last_blockchain_value():
     if len(blockchain) < 1:
         return None
     return blockchain[-1]
+
 
 # Adds transaction to the blockchain
 def add_transaction(transaction):
