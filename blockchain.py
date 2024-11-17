@@ -1,3 +1,5 @@
+MINING_REWARD = 10
+
 # The very first block in the blockchain. Used to init the blockchain. No important information is stored.
 GENESIS_BLOCK = {'previous_hash': '', 'transactions': []}
 blockchain = [GENESIS_BLOCK]
@@ -66,6 +68,15 @@ def mine_block():
     last_block = blockchain[-1]
     # Hash the block using the predefined hashing function
     hashed_block = hash_block(last_block)
+
+    # The miner of the block gets a reward
+    reward_transaction = {
+        'sender': 'MINING',
+        'recipient': owner,
+        'amount': MINING_REWARD
+    }
+    open_transactions.append(reward_transaction)
+
     # The new block saves the previous block as a hash
     block = {'previous_hash': hashed_block, 'transactions': open_transactions}
     # TODO: add validation to the transactions
