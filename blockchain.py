@@ -60,23 +60,19 @@ def print_blockchain_elements():
     else:
         print('-' * 20)
 
+
 # Verify if the blockchain isn't manipulated
 def verify_chain():
-    is_valid = True
-
-    for block_index in range(len(blockchain)):
-        # Skip checking the first block because it's no use to check the first block when there are no previous blocks
-        if block_index == 0:
+    # Enumerate adds a counter to an iterable
+    for (index, block) in enumerate(blockchain):
+        # The first block doesn't have any other block to compare to so skip it
+        if index == 0:
             continue
-        # Check if the first element of a block is equal to the previous block
-        # The first element is always the entire previous block
-        elif blockchain[block_index][0] == blockchain[block_index - 1]:
-            is_valid = True
-        else:
-            is_valid = False
-
-    return is_valid
-
+        if block['previous_hash'] != hash_block(blockchain[index - 1]):
+            print('prev ' + block['previous_hash'])
+            print('next ' + hash_block(blockchain[index - 1]))
+            return False
+    return True
 
 waiting_for_input = True
 
