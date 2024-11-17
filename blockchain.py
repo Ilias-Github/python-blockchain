@@ -45,23 +45,34 @@ def get_last_blockchain_value():
         return None
     return blockchain[-1]
 
+def verify_transaction(transaction):
+    """Verify if the sender has enough funds by comparing the balance of the sender with the transaction amount"""
+    sender_balance = get_balance(transaction['sender'])
+    tx_amount = transaction['amount']
+
+    return sender_balance >= tx_amount
 
 # Adds transaction to the blockchain
 def add_transaction(transaction):
     sender = transaction['sender']
     recipient = transaction['recipient']
-    # Dictionary because each key-value pair needs to be unique
-    open_transactions.append(
-        {
-            'sender': sender,
-            'recipient': recipient,
-            'amount': transaction['amount']
-        }
-    )
-    # Because we use a set, duplicates will be ignored automatically
-    participants.add(sender)
-    participants.add(recipient)
 
+    if verify_transaction(transaction):
+        # Dictionary because each key-value pair needs to be unique
+        open_transactions.append(
+            {
+                'sender': sender,
+                'recipient': recipient,
+                'amount': transaction['amount']
+            }
+        )
+
+        # Because we use a set, duplicates will be ignored automatically
+        participants.add(sender)
+        participants.add(recipient)
+        return True
+
+    return False
 
 def mine_block():
     # Get the last block in the chain to save as a hash in the new block
