@@ -27,8 +27,17 @@ def add_transaction(transaction):
         }
     )
 
+
 def mine_block():
-    pass
+    # Get the last block in the chain to save as a hash in the new block
+    last_block = blockchain[-1]
+    # Hash the block using the predefined hashing function
+    hashed_block = hash_block(last_block)
+    # The new block saves the previous block as a hash
+    block = {'previous_hash': hashed_block, 'transactions': open_transactions}
+    # TODO: add validation to the transactions
+    blockchain.append(block)
+
 
 # The recipient and amount is important to know when making a transaction
 def get_transaction_value_and_recipient():
