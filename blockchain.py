@@ -7,6 +7,8 @@ owner = 'Ilias'
 
 
 def hash_block(block):
+    """'Hash' a block by concatonating the data with hyphens in between"""
+    # TODO: Apply real hashing
     return '-'.join([str(block[key]) for key in block])
 
 
@@ -50,6 +52,7 @@ def get_transaction_value_and_recipient():
 def get_user_choice():
     user_input = input('Your choice: ')
     return user_input
+
 
 # Print all the blocks in the chain
 def print_blockchain_elements():
@@ -110,6 +113,5 @@ while waiting_for_input:
         break
 else:
     print('User left!')
-
 
 print('Done!')
