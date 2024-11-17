@@ -71,6 +71,8 @@ def mine_block():
     # TODO: add validation to the transactions
     blockchain.append(block)
 
+    return True
+
 
 # The recipient and amount is important to know when making a transaction
 def get_transaction_value_and_recipient():
@@ -127,7 +129,9 @@ while waiting_for_input:
         add_transaction(transaction)
         print(open_transactions)
     elif user_choice == '2':
-        mine_block()
+        if mine_block():
+            # Set the open transactions to an empty list because they're all processed
+            open_transactions = []
     elif user_choice == '3':
         print_blockchain_elements()
     elif user_choice == '4':
