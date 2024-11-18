@@ -145,6 +145,23 @@ def verify_chain():
             return False
     return True
 
+def verify_transactions():
+    """
+        Verifies if all open transactions are valid. Since we aren't able to add invalid transactions, this code might
+        be redundant. It's mostly meant to play around with the all() function within python
+    """
+    # This list comprehension does the same as the code below it, but in a shorter way.
+    # We check if all open transactions are valid. If even one is invalid, this method returns False
+    return all([verify_transaction(tx) for tx in open_transactions])
+
+    # is_valid = True
+    # for tx in open_transactions:
+    #     if verify_transaction(tx):
+    #         is_valid = True
+    #     else:
+    #         is_valid = False
+    # return is_valid
+
 waiting_for_input = True
 
 while waiting_for_input:
@@ -154,6 +171,7 @@ while waiting_for_input:
     print('2: Mine a new block')
     print('3: Output the blockchain blocks')
     print('4: Output participants')
+    print('5: check transaction validity')
     print('h: Manipulate the chain')
     print('q: Quit')
 
@@ -174,6 +192,11 @@ while waiting_for_input:
         print_blockchain_elements()
     elif user_choice == '4':
         print(participants)
+    elif user_choice == '5':
+        if verify_transactions():
+            print('All transactions valid')
+        else:
+            print('There are invalid transactions')
     elif user_choice == 'h':
         # Manipulate the blockchain to check its integrity
         if len(blockchain) >= 1:
