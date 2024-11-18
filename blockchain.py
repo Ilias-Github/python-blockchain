@@ -13,14 +13,25 @@ participants = {'Ilias'}
 
 
 def hash_block(block):
-    """'Hash' a block by concatonating the data with hyphens in between"""
+    """'Hash' a block by concatenating the data with hyphens in between"""
     # TODO: Apply real hashing
     return '-'.join([str(block[key]) for key in block])
 
 def get_balance(participant):
-    print('part: ' + participant)
-    # Check every block in the blockchain for the where the given participant is the sender and save them to a list
+    """Checks the current balance of the user by adding up the funds sent with the funds still in the open transactions
+    subtracting the funds already received"""
+
+    # Check using list comprehension every block in the blockchain for where the given participant is the sender.
+    # Take the transaction amount and save that to the list
     tx_sender = [[tx['amount'] for tx in block['transactions'] if tx['sender'] == participant] for block in blockchain]
+
+    # Using list comprehension check every transaction in the open transactions for the given participant. Save up all
+    # the amounts where the participant is the sender
+    # open_tx_sender = [[tx['amount'] for tx in transaction['transactions'] if tx['sender'] == participant] for transaction in open_transactions]
+    open_tx_sender = [tx['amount'] for tx in open_transactions if tx['sender'] == participant]
+
+    # Save all the send funds transactions so we can compare them to the funds received later on
+    tx_sender.append(open_tx_sender)
 
     # Calculate the total amount sent by the given participant
     amount_sent = 0
@@ -29,15 +40,17 @@ def get_balance(participant):
         if len(tx) > 0:
             amount_sent += tx[0]
 
+    # Check using list comprehensions all the transactions from the given participant to calculate al the funds received
     tx_recipient = [[tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant] for block in blockchain]
 
-    # Calculate the total amount sent by the given participant
+    # Calculate the total amount received by the given participant
     amount_received = 0
     for tx in tx_recipient:
         # Cannot add something if it doesn't exist
         if len(tx) > 0:
             amount_received += tx[0]
 
+    # Calculate the balance of the participant
     return amount_received - amount_sent
 
 def get_last_blockchain_value():
@@ -148,7 +161,10 @@ while waiting_for_input:
 
     if user_choice == '1':
         transaction = get_transaction_value_and_recipient()
-        add_transaction(transaction)
+        if add_transaction(transaction):
+            print('Added transaction')
+        else:
+            print('Transaction failed')
         print(open_transactions)
     elif user_choice == '2':
         if mine_block():
