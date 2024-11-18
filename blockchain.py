@@ -99,10 +99,19 @@ def mine_block():
         'recipient': owner,
         'amount': MINING_REWARD
     }
-    open_transactions.append(reward_transaction)
+
+    # Make a copy of the values in open transactions. By selecting the values, you create a copy of the values, not of
+    # the reference.
+    # The colon is a range selector that selects the whole list as a range.
+    # Note that this only creates a shallow copy meaning that complex data structures (like other lists) aren't copied
+    # over but only referenced. So changing the nested list results in the original list being modified
+    # We don't want to edit the open transactions in case there is a problem mining since we only want to award users
+    # who have actually mined a block
+    copied_transactions = open_transactions[:]
+    copied_transactions.append(reward_transaction)
 
     # The new block saves the previous block as a hash
-    block = {'previous_hash': hashed_block, 'transactions': open_transactions}
+    block = {'previous_hash': hashed_block, 'transactions': copied_transactions}
     # TODO: add validation to the transactions
     blockchain.append(block)
 
