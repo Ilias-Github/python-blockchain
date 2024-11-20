@@ -1,6 +1,7 @@
 import functools
 import hashlib
 import json
+import collections
 
 MINING_REWARD = 10
 
@@ -25,7 +26,7 @@ def hash_block(block):
     # We're hashing the block because we want to have a "signature" of the previous block. This signature can be used to
     # determine whether the previous block has been tampered with because the hashing algorithm should always be
     # able to reproduce the same hash when the exact values are given.
-    return hashlib.sha256(json.dumps(block).encode()).hexdigest()
+    return hashlib.sha256(json.dumps(block, sort_keys=True).encode()).hexdigest()
 
 def valid_proof(transactions, last_hash, proof):
     # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
@@ -101,17 +102,21 @@ def verify_transaction(transaction):
 def add_transaction(transaction):
     sender = transaction['sender']
     recipient = transaction['recipient']
+    amount = transaction['amount']
+
+    # Since dictionaries are unordered, the calculated hash could be calculated wrong because the position of elements
+    # in the dictionary aren't set. Ordered dictionary keeps (like the name implies) the dictionary ordered
+    # transaction = collections.OrderedDict(
+    #     [('sender', sender), ('recipient', recipient), ('amount', amount)]
+    # )
 
     if verify_transaction(transaction):
         # Dictionary because each key-value pair needs to be unique
-        open_transactions.append(
-            {
+        open_transactions.append({
                 'sender': sender,
                 'recipient': recipient,
-                'amount': transaction['amount']
-            }
-        )
-
+                'amount': amount
+            })
         # Because we use a set, duplicates will be ignored automatically
         participants.add(sender)
         participants.add(recipient)
@@ -127,11 +132,11 @@ def mine_block():
     proof = proof_of_work()
 
     # The miner of the block gets a reward
-    reward_transaction = {
-        'sender': 'MINING',
-        'recipient': owner,
-        'amount': MINING_REWARD
-    }
+    reward_transaction = collections.OrderedDict([
+        ('sender', 'MINING'),
+        ('recipient', owner),
+        ('amount', MINING_REWARD)
+        ])
 
     # Make a copy of the values in open transactions. By selecting the values, you create a copy of the values, not of
     # the reference.
