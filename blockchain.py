@@ -1,7 +1,8 @@
 import functools
 import hashlib
-import json
 import collections
+
+import hash_util
 
 MINING_REWARD = 10
 
@@ -21,13 +22,6 @@ owner = 'Ilias'
 # The name will be replaced by a unique identifier
 participants = {'Ilias'}
 
-def hash_block(block):
-    # Hash the block by converting the block into a JSON object because the expected argument is a string.
-    # We're hashing the block because we want to have a "signature" of the previous block. This signature can be used to
-    # determine whether the previous block has been tampered with because the hashing algorithm should always be
-    # able to reproduce the same hash when the exact values are given.
-    return hashlib.sha256(json.dumps(block, sort_keys=True).encode()).hexdigest()
-
 def valid_proof(transactions, last_hash, proof):
     # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
     guess = (str(transactions) + last_hash + str(proof)).encode()
@@ -42,7 +36,7 @@ def proof_of_work():
     # To do that, we need the last block of the chain, the last block in hashed form and the initial proof (this is a
     # random value we assign to it)
     last_block = blockchain[-1]
-    last_hash = hash_block(last_block)
+    last_hash = hash_util.hash_block(last_block)
     proof = 0
 
     while not valid_proof(open_transactions, last_hash, proof):
@@ -128,7 +122,7 @@ def mine_block():
     # Get the last block in the chain to save as a hash in the new block
     last_block = blockchain[-1]
     # Hash the block using the predefined hashing function
-    hashed_block = hash_block(last_block)
+    hashed_block = hash_util.hash_block(last_block)
     proof = proof_of_work()
 
     # The miner of the block gets a reward
@@ -191,9 +185,9 @@ def verify_chain():
         # The first block doesn't have any other block to compare to so skip it
         if index == 0:
             continue
-        if block['previous_hash'] != hash_block(blockchain[index - 1]):
+        if block['previous_hash'] != hash_util.hash_block(blockchain[index - 1]):
             print('prev ' + block['previous_hash'])
-            print('next ' + hash_block(blockchain[index - 1]))
+            print('next ' + hash_util.hash_block(blockchain[index - 1]))
             return False
         if not valid_proof(block['transactions'][:-1], block['previous_hash'], block['proof']):
             print('Proof of work was invalid')
