@@ -1,4 +1,6 @@
 import functools
+import hashlib
+import json
 
 MINING_REWARD = 10
 
@@ -15,9 +17,11 @@ participants = {'Ilias'}
 
 
 def hash_block(block):
-    """'Hash' a block by concatenating the data with hyphens in between"""
-    # TODO: Apply real hashing
-    return '-'.join([str(block[key]) for key in block])
+    # Hash the block by converting the block into a JSON object because the expected argument is a string.
+    # We're hashing the block because we want to have a "signature" of the previous block. This signature can be used to
+    # determine whether the previous block has been tampered with because the hashing algorithm should always be
+    # able to reproduce the same hash when the exact values are given.
+    return hashlib.sha256(json.dumps(block).encode()).hexdigest()
 
 def get_balance(participant):
     """Checks the current balance of the user by adding up the funds sent with the funds still in the open transactions
