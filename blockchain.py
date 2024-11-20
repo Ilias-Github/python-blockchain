@@ -4,8 +4,13 @@ import json
 
 MINING_REWARD = 10
 
-# The very first block in the blockchain. Used to init the blockchain. No important information is stored.
-GENESIS_BLOCK = {'previous_hash': '', 'transactions': []}
+# The very first block in the blockchain. Used to init the blockchain. No important information is stored. The proof is
+# meaningless
+GENESIS_BLOCK = {
+    'previous_hash': '',
+    'transactions': [],
+    'proof': 0
+}
 blockchain = [GENESIS_BLOCK]
 # Transactions need to be processed before adding them to the blockchain
 open_transactions = []
@@ -15,13 +20,34 @@ owner = 'Ilias'
 # The name will be replaced by a unique identifier
 participants = {'Ilias'}
 
-
 def hash_block(block):
     # Hash the block by converting the block into a JSON object because the expected argument is a string.
     # We're hashing the block because we want to have a "signature" of the previous block. This signature can be used to
     # determine whether the previous block has been tampered with because the hashing algorithm should always be
     # able to reproduce the same hash when the exact values are given.
     return hashlib.sha256(json.dumps(block).encode()).hexdigest()
+
+def valid_proof(transactions, last_hash, proof):
+    # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
+    guess = (str(transactions) + last_hash + str(proof)).encode()
+    guess_hash = hashlib.sha256(guess).hexdigest()
+    print(guess_hash)
+
+    # The proof of work is only valid when the hash starts a predefined set of random characters defined by us.
+    return guess_hash[0:2] == '00'
+
+def proof_of_work():
+    # Calculate the proof of work by incrementing the proof until the requirements of valid_proof are satisfied
+    # To do that, we need the last block of the chain, the last block in hashed form and the initial proof (this is a
+    # random value we assign to it)
+    last_block = blockchain[-1]
+    last_hash = hash_block(last_block)
+    proof = 0
+
+    while not valid_proof(open_transactions, last_hash, proof):
+        proof += 1
+
+    return proof
 
 def get_balance(participant):
     """Checks the current balance of the user by adding up the funds sent with the funds still in the open transactions
@@ -98,6 +124,7 @@ def mine_block():
     last_block = blockchain[-1]
     # Hash the block using the predefined hashing function
     hashed_block = hash_block(last_block)
+    proof = proof_of_work()
 
     # The miner of the block gets a reward
     reward_transaction = {
@@ -117,7 +144,12 @@ def mine_block():
     copied_transactions.append(reward_transaction)
 
     # The new block saves the previous block as a hash
-    block = {'previous_hash': hashed_block, 'transactions': copied_transactions}
+    block = {
+        'previous_hash': hashed_block,
+        'transactions': copied_transactions,
+        'proof': proof
+    }
+
     # TODO: add validation to the transactions
     blockchain.append(block)
 
@@ -157,6 +189,9 @@ def verify_chain():
         if block['previous_hash'] != hash_block(blockchain[index - 1]):
             print('prev ' + block['previous_hash'])
             print('next ' + hash_block(blockchain[index - 1]))
+            return False
+        if not valid_proof(block['transactions'][:-1], block['previous_hash'], block['proof']):
+            print('Proof of work was invalid')
             return False
     return True
 
