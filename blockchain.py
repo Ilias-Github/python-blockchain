@@ -1,3 +1,5 @@
+import functools
+
 MINING_REWARD = 10
 
 # The very first block in the blockchain. Used to init the blockchain. No important information is stored.
@@ -33,22 +35,22 @@ def get_balance(participant):
     # Save all the send funds transactions so we can compare them to the funds received later on
     tx_sender.append(open_tx_sender)
 
-    # Calculate the total amount sent by the given participant
-    amount_sent = 0
-    for tx in tx_sender:
-        # Cannot add something if it doesn't exist
-        if len(tx) > 0:
-            amount_sent += tx[0]
+    # Calculate the total amount sent by the given participant by using a reduce function.
+    # The reduce function is there to reduce the given iterable to a single value
+    # In the lambda expression, we define two variables. The first variable is the reduced value (the end result), the
+    # second variable is the next element in the iterable we need to process. After the colon is the logic we want to
+    # apply to reduce the list. In This case we want to sum up the numbers. Since we're passing a nested list, we want
+    # to grab the first value of each nested list.
+    #
+    # Before executing the operation, we check with a ternary if the value is greater than 0. We do this in cases where
+    # there is no value
+    amount_sent = functools.reduce(lambda tx_sum, tx_amt : tx_sum + tx_amt[0] if len(tx_amt) > 0 else 0, tx_sender, 0)
 
     # Check using list comprehensions all the transactions from the given participant to calculate al the funds received
     tx_recipient = [[tx['amount'] for tx in block['transactions'] if tx['recipient'] == participant] for block in blockchain]
 
     # Calculate the total amount received by the given participant
-    amount_received = 0
-    for tx in tx_recipient:
-        # Cannot add something if it doesn't exist
-        if len(tx) > 0:
-            amount_received += tx[0]
+    amount_received = functools.reduce(lambda tx_sum, tx_amt : tx_sum + tx_amt[0] if len(tx_amt) > 0 else 0, tx_recipient, 0)
 
     # Calculate the balance of the participant
     return amount_received - amount_sent
