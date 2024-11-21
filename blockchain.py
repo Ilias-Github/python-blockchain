@@ -2,6 +2,7 @@ import functools
 import hashlib
 import collections
 import json
+import pathlib
 
 import hash_util
 
@@ -24,17 +25,19 @@ owner = 'Ilias'
 participants = {'Ilias'}
 
 def load_data():
-    with open('blockchain.json', mode='r') as f:
-        content = f.readlines()
-        global blockchain
-        global open_transactions
+    file = pathlib.Path('blockchain.json')
+    if file.exists():
+        with open(file, mode='r') as f:
+            content = f.readlines()
+            global blockchain
+            global open_transactions
 
-        blockchain = json.loads(content[0][:-1])
-        open_transactions = json.loads(content[1])
+            blockchain = json.loads(content[0][:-1])
+            open_transactions = json.loads(content[1])
 
-        print(blockchain)
-        print(open_transactions)
-        
+            print(blockchain)
+            print(open_transactions)
+
 load_data()
 
 def save_data():
