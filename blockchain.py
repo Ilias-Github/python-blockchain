@@ -33,10 +33,27 @@ def load_data():
             global open_transactions
 
             blockchain = json.loads(content[0][:-1])
-            open_transactions = json.loads(content[1])
+            updated_blockchain = []
+            # Convert the retrieved blockchain from the file to an ordered dictionary
+            for block in blockchain:
+                updated_block = {
+                    'previous_hash': block['previous_hash'],
+                    'proof': block['proof'],
+                    'transactions': [
+                        collections.OrderedDict([
+                            ['sender', tx['sender']], ['recipient', tx['recipient']], ['amount', tx['amount']]
+                        ]) for tx in block['transactions']]
+                }
+                updated_blockchain.append(updated_block)
+            blockchain = updated_blockchain
 
-            print(blockchain)
-            print(open_transactions)
+            open_transactions = json.loads(content[1])
+            updated_open_transactions = []
+
+            for tx in open_transactions:
+                updated_transaction = collections.OrderedDict([['sender', tx['sender']], ['recipient', tx['recipient']], ['amount', tx['amount']]])
+                updated_open_transactions.append(updated_transaction)
+            open_transactions = updated_open_transactions
 
 load_data()
 
