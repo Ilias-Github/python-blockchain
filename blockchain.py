@@ -22,6 +22,12 @@ owner = 'Ilias'
 # The name will be replaced by a unique identifier
 participants = {'Ilias'}
 
+def save_data():
+    with open('blockchain.txt', mode='w') as f:
+        f.write(str(blockchain))
+        f.write('\n')
+        f.write(str(open_transactions))
+
 def valid_proof(transactions, last_hash, proof):
     # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
     guess = (str(transactions) + last_hash + str(proof)).encode()
@@ -114,6 +120,7 @@ def add_transaction(transaction):
         # Because we use a set, duplicates will be ignored automatically
         participants.add(sender)
         participants.add(recipient)
+        save_data()
         return True
 
     return False
@@ -151,6 +158,7 @@ def mine_block():
 
     # TODO: add validation to the transactions
     blockchain.append(block)
+    save_data()
 
     return True
 
