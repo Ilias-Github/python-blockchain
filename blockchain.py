@@ -67,7 +67,6 @@ def valid_proof(transactions, last_hash, proof):
     # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
     guess = (str(transactions) + last_hash + str(proof)).encode()
     guess_hash = hashlib.sha256(guess).hexdigest()
-    print(guess_hash)
 
     # The proof of work is only valid when the hash starts a predefined set of random characters defined by us.
     return guess_hash[0:2] == '00'
@@ -310,4 +309,3 @@ while waiting_for_input:
 else:
     print('User left!')
 
-print('Done!')
