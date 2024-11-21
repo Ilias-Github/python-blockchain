@@ -147,11 +147,12 @@ def add_transaction(transaction):
 
     if verify_transaction(transaction):
         # Dictionary because each key-value pair needs to be unique
-        open_transactions.append({
-                'sender': sender,
-                'recipient': recipient,
-                'amount': amount
-            })
+        open_transactions.append(collections.OrderedDict([
+            ['sender', sender],
+            ['recipient', recipient],
+            ['amount', amount]
+        ]))
+
         # Because we use a set, duplicates will be ignored automatically
         participants.add(sender)
         participants.add(recipient)
