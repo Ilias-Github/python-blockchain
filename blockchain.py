@@ -22,6 +22,20 @@ owner = 'Ilias'
 # The name will be replaced by a unique identifier
 participants = {'Ilias'}
 
+def load_data():
+    with open('blockchain.json', mode='r') as f:
+        content = f.readlines()
+        global blockchain
+        global open_transactions
+
+        blockchain = json.loads(content[0][:-1])
+        open_transactions = json.loads(content[1])
+
+        print(blockchain)
+        print(open_transactions)
+        
+load_data()
+
 def save_data():
     with open('blockchain.json', mode='w') as f:
         f.write(json.dumps(blockchain))
