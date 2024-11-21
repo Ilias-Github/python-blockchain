@@ -1,6 +1,7 @@
 import functools
 import hashlib
 import collections
+import json
 
 import hash_util
 
@@ -172,7 +173,6 @@ def mine_block():
 
     # TODO: add validation to the transactions
     blockchain.append(block)
-    save_data()
 
     return True
 
@@ -258,6 +258,7 @@ while waiting_for_input:
         print(open_transactions)
     elif user_choice == '2':
         if mine_block():
+            save_data()
             # Set the open transactions to an empty list because they're all processed
             open_transactions = []
     elif user_choice == '3':
