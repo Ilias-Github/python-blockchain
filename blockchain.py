@@ -23,10 +23,10 @@ owner = 'Ilias'
 participants = {'Ilias'}
 
 def save_data():
-    with open('blockchain.txt', mode='w') as f:
-        f.write(str(blockchain))
+    with open('blockchain.json', mode='w') as f:
+        f.write(json.dumps(blockchain))
         f.write('\n')
-        f.write(str(open_transactions))
+        f.write(json.dumps(open_transactions))
 
 def valid_proof(transactions, last_hash, proof):
     # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
