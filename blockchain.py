@@ -242,7 +242,8 @@ while waiting_for_input:
     print('2: Mine a new block')
     print('3: Output the blockchain blocks')
     print('4: Output participants')
-    print('5: check transaction validity')
+    print('5: Check transaction validity')
+    print('6: Get all transactions')
     print('h: Manipulate the chain')
     print('q: Quit')
 
@@ -268,6 +269,8 @@ while waiting_for_input:
             print('All transactions valid')
         else:
             print('There are invalid transactions')
+    elif user_choice == '6':
+        load_data()
     elif user_choice == 'h':
         # Manipulate the blockchain to check its integrity
         if len(blockchain) >= 1:
