@@ -8,14 +8,7 @@ import hash_util
 
 MINING_REWARD = 10
 
-# The very first block in the blockchain. Used to init the blockchain. No important information is stored. The proof is
-# meaningless
-GENESIS_BLOCK = {
-    'previous_hash': '',
-    'transactions': [],
-    'proof': 0
-}
-blockchain = [GENESIS_BLOCK]
+blockchain = []
 # Transactions need to be processed before adding them to the blockchain
 open_transactions = []
 owner = 'Ilias'
@@ -26,7 +19,7 @@ participants = {'Ilias'}
 
 def load_data():
     file = pathlib.Path('blockchain.json')
-    if file.exists():
+    try:
         with open(file, mode='r') as f:
             content = f.readlines()
             global blockchain
@@ -54,14 +47,30 @@ def load_data():
                 updated_transaction = collections.OrderedDict([['sender', tx['sender']], ['recipient', tx['recipient']], ['amount', tx['amount']]])
                 updated_open_transactions.append(updated_transaction)
             open_transactions = updated_open_transactions
+    except (IOError, IndexError):
+        # Initialise the blockchain if no data exists
+        # The very first block in the blockchain. Used to init the blockchain. No important information is stored. The proof is
+        # meaningless
+        GENESIS_BLOCK = {
+            'previous_hash': '',
+            'transactions': [],
+            'proof': 0
+        }
+
+        blockchain = [GENESIS_BLOCK]
+        open_transactions = []
+
 
 load_data()
 
 def save_data():
-    with open('blockchain.json', mode='w') as f:
-        f.write(json.dumps(blockchain))
-        f.write('\n')
-        f.write(json.dumps(open_transactions))
+    try:
+        with open('blockchain.json', mode='w') as f:
+            f.write(json.dumps(blockchain))
+            f.write('\n')
+            f.write(json.dumps(open_transactions))
+    except IOError:
+        print('Saving failed!')
 
 def valid_proof(transactions, last_hash, proof):
     # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
