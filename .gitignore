@@ -322,4 +322,7 @@ pyrightconfig.json
 
 # Python file for playing around
 playground.py
+
+# Generated txt files
+*.txt
 # End of https://www.toptal.com/developers/gitignore/api/pycharm,python,macos
