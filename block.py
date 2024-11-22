@@ -1,5 +1,7 @@
 from time import time
 
+
+# TODO: Fix timestamp
 class Block:
     def __init__(self, index, previous_hash, transactions, proof, time=time()):
         self.index = index
