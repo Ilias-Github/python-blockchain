@@ -7,8 +7,12 @@ def hash_string_256(string):
 
 
 def hash_block(block):
+    # Converts a block object to a dictionary
+    # It's important to create the copy since we want to have the current state of the block. The original block can
+    # change and therefore the output hash won't match up with the original
+    hashable_block = block.__dict__.copy()
     # Hash the block by converting the block into a JSON object because the expected argument is a string.
     # We're hashing the block because we want to have a "signature" of the previous block. This signature can be used to
     # determine whether the previous block has been tampered with because the hashing algorithm should always be
     # able to reproduce the same hash when the exact values are given.
-    return hash_string_256(json.dumps(block, sort_keys=True).encode())
+    return hash_string_256(json.dumps(hashable_block, sort_keys=True).encode())
