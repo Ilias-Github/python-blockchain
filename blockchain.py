@@ -74,7 +74,8 @@ load_data()
 def save_data():
     try:
         with open('blockchain.json', mode='w') as f:
-            f.write(json.dumps(blockchain))
+            savable_chain = [block.__dict__ for block in blockchain]
+            f.write(json.dumps(savable_chain))
             f.write('\n')
             f.write(json.dumps(open_transactions))
     except IOError:
@@ -213,11 +214,6 @@ def mine_block():
 
     # The new block saves the previous block as a hash
     block = Block(len(blockchain), hashed_block, copied_transactions, proof)
-    block = {
-        'previous_hash': hashed_block,
-        'transactions': copied_transactions,
-        'proof': proof
-    }
 
     blockchain.append(block)
 
