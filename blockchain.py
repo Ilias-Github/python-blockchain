@@ -17,10 +17,6 @@ blockchain = []
 open_transactions = []
 owner = 'Ilias'
 
-# Participants are saved in a set because we don't want any duplicates in our userbase
-# The name will be replaced by a unique identifier
-participants = {'Ilias'}
-
 
 def load_data():
     file = pathlib.Path('blockchain.json')
@@ -289,9 +285,7 @@ while waiting_for_input:
     print('1: Add a new transaction value')
     print('2: Mine a new block')
     print('3: Output the blockchain blocks')
-    print('4: Output participants')
-    print('5: Check transaction validity')
-    print('6: Get all transactions')
+    print('4: Check transaction validity')
     print('q: Quit')
 
     user_choice = get_user_choice()
@@ -311,14 +305,10 @@ while waiting_for_input:
     elif user_choice == '3':
         print_blockchain_elements()
     elif user_choice == '4':
-        print(participants)
-    elif user_choice == '5':
         if verify_transactions():
             print('All transactions valid')
         else:
             print('There are invalid transactions')
-    elif user_choice == '6':
-        load_data()
     elif user_choice == 'q':
         waiting_for_input = False
     else:
