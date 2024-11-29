@@ -8,6 +8,7 @@ import pathlib
 # Importing our own code
 import hash_util
 from block import Block
+from transaction import Transaction
 
 MINING_REWARD = 10
 
@@ -33,9 +34,10 @@ def load_data():
             updated_blockchain = []
             # Convert the retrieved blockchain from the file to an ordered dictionary
             for block in blockchain:
-                converted_tx = [collections.OrderedDict([
-                    ['sender', tx['sender']], ['recipient', tx['recipient']], ['amount', tx['amount']]
-                ]) for tx in block['transactions']]
+                # Convert each transaction block in the list to a transaction object
+                converted_tx = [Transaction(tx['sender'], tx['recipient'], tx['amount']) for tx in
+                                block['transactions']]
+                # TODO: Clean this up
                 updated_block = Block(block['index'], block['previous_hash'], converted_tx, block['proof'],
                                       block['timestamp'])
                 updated_block = {
@@ -50,13 +52,13 @@ def load_data():
             blockchain = updated_blockchain
 
             open_transactions = json.loads(content[1])
-            updated_open_transactions = []
+            converted_transactions = []
 
+            # Retrieve the open transactions and convert them to a transaction object
             for tx in open_transactions:
-                updated_transaction = collections.OrderedDict(
-                    [['sender', tx['sender']], ['recipient', tx['recipient']], ['amount', tx['amount']]])
-                updated_open_transactions.append(updated_transaction)
-            open_transactions = updated_open_transactions
+                updated_transaction = Transaction(tx['sender'], tx['recipient'], tx['amount'])
+                converted_transactions.append(updated_transaction)
+            open_transactions = converted_transactions
     except (IOError, IndexError):
         # Initialise the blockchain if no data exists
         # The very first block in the blockchain. Used to init the blockchain. No important information is stored. The proof is
@@ -74,17 +76,24 @@ load_data()
 def save_data():
     try:
         with open('blockchain.json', mode='w') as f:
-            savable_chain = [block.__dict__ for block in blockchain]
+            savable_chain = [block.__dict__ for block in
+                             [Block(block_el.index, block_el.previous_hash,
+                                    [tx.__dict__ for tx in block_el.transactions], block_el.proof, block_el.timestamp)
+                              for
+                              block_el in blockchain]]
             f.write(json.dumps(savable_chain))
             f.write('\n')
-            f.write(json.dumps(open_transactions))
+            # TODO: Play around with the two lines below
+            savable_tx = [tx.__dict__ for tx in open_transactions]
+            f.write(json.dumps(savable_tx))
     except IOError:
         print('Saving failed!')
 
 
 def valid_proof(transactions, last_hash, proof):
-    # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash
-    guess = (str(transactions) + last_hash + str(proof)).encode()
+    # To validate our proof we need to create a string of the arguments. This enables us to calculate a new hash. To do
+    # this, we need to convert the transaction objects to an ordered dictionary of transactions.
+    guess = (str(tx.to_ordered_dict() for tx in transactions) + last_hash + str(proof)).encode()
     guess_hash = hashlib.sha256(guess).hexdigest()
 
     # The proof of work is only valid when the hash starts a predefined set of random characters defined by us.
@@ -111,12 +120,12 @@ def get_balance(participant):
 
     # Check using list comprehension every block in the blockchain for where the given participant is the sender.
     # Take the transaction amount and save that to the list
-    tx_sender = [[tx['amount'] for tx in block.transactions if tx['sender'] == participant] for block in blockchain]
+    tx_sender = [[tx.amount for tx in block.transactions if tx.sender == participant] for block in blockchain]
 
     # Using list comprehension check every transaction in the open transactions for the given participant. Save up all
     # the amounts where the participant is the sender
     # open_tx_sender = [[tx['amount'] for tx in transaction['transactions'] if tx['sender'] == participant] for transaction in open_transactions]
-    open_tx_sender = [tx['amount'] for tx in open_transactions if tx['sender'] == participant]
+    open_tx_sender = [tx.amount for tx in open_transactions if tx.sender == participant]
 
     # Save all the send funds transactions so we can compare them to the funds received later on
     tx_sender.append(open_tx_sender)
@@ -134,7 +143,7 @@ def get_balance(participant):
                                    tx_sender, 0)
 
     # Check using list comprehensions all the transactions from the given participant to calculate al the funds received
-    tx_recipient = [[tx['amount'] for tx in block.transactions if tx['recipient'] == participant] for block in
+    tx_recipient = [[tx.amount for tx in block.transactions if tx.recipient == participant] for block in
                     blockchain]
 
     # Calculate the total amount received by the given participant
@@ -153,8 +162,8 @@ def get_last_blockchain_value():
 
 def verify_transaction(transaction):
     """Verify if the sender has enough funds by comparing the balance of the sender with the transaction amount"""
-    sender_balance = get_balance(transaction['sender'])
-    tx_amount = transaction['amount']
+    sender_balance = get_balance(transaction.sender)
+    tx_amount = transaction.amount
 
     return sender_balance >= tx_amount
 
@@ -170,8 +179,9 @@ def add_transaction(transaction):
     # transaction = collections.OrderedDict(
     #     [('sender', sender), ('recipient', recipient), ('amount', amount)]
     # )
+    new_transaction = Transaction(sender, recipient, amount)
 
-    if verify_transaction(transaction):
+    if verify_transaction(new_transaction):
         # Dictionary because each key-value pair needs to be unique
         open_transactions.append(collections.OrderedDict([
             ['sender', sender],
@@ -179,9 +189,6 @@ def add_transaction(transaction):
             ['amount', amount]
         ]))
 
-        # Because we use a set, duplicates will be ignored automatically
-        participants.add(sender)
-        participants.add(recipient)
         save_data()
         return True
 
@@ -196,11 +203,7 @@ def mine_block():
     proof = proof_of_work()
 
     # The miner of the block gets a reward
-    reward_transaction = collections.OrderedDict([
-        ('sender', 'MINING'),
-        ('recipient', owner),
-        ('amount', MINING_REWARD)
-    ])
+    reward_transaction = Transaction('MINING', owner, MINING_REWARD)
 
     # Make a copy of the values in open transactions. By selecting the values, you create a copy of the values, not of
     # the reference.
